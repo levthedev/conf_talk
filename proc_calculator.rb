@@ -1,8 +1,8 @@
 class Calculator
   operators = {:+ => "add", :- => "subtract", :* => "multiply", :/ => "divide"}
 
-  [:+, :-, :*, :/].each do |sym|
-    define_method("#{operators[sym]}") do |*tuple|
+  operators.each do |sym, str|
+    define_method("#{str}") do |*tuple|
       p sym.to_proc.call(*tuple)
     end
   end
