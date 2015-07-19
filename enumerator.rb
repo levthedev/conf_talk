@@ -27,7 +27,8 @@ module MyEnumerable
       each { |e| array << block.call(e) }  # ~> NoMethodError: undefined method `call' for nil:NilClass
       array
     else
-
+      MyEnumerator.new(self)
+    end
   end
 
   def to_h
@@ -50,8 +51,12 @@ class MyEnumerator
       each { |e| Fiber.yield(e) }
       raise StopIteration
     end
-    @fiber.alive? ? @fiber.resume : raise StopIteration
-  end
+    if @fiber.alive?
+       @fiber.resume
+     else
+       raise StopIteration
+     end
+   end
 end
 
 MyEnumerator.new([1,2,3]).map
