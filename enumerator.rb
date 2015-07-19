@@ -4,9 +4,9 @@ module MyEnumerable
   end
 
   def count(&block)
-    block ||= Proc.new { true }
-    count = 0
-    each {|e| count += 1 if block.call(e) }
+    block ||= Proc.new { true }              # => #<Proc:0x007f82fa02baa0@/Users/levkravinsky/Desktop/playground/enumerator.rb:7>
+    count = 0                                # => 0
+    each {|e| count += 1 if block.call(e) }  # ~> NoMethodError: undefined method `each' for #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
     count
   end
 
@@ -22,13 +22,13 @@ module MyEnumerable
   end
 
   def map(&block)
-    if block
-      array = []                           # => []
-      each { |e| array << block.call(e) }  # ~> NoMethodError: undefined method `call' for nil:NilClass
+    if block                               # => nil
+      array = []
+      each { |e| array << block.call(e) }
       array
     else
-      MyEnumerator.new(self)
-    end
+      MyEnumerator.new(@array)             # => #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
+    end                                    # => #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
   end
 
   def to_h
@@ -39,13 +39,13 @@ end
 class MyEnumerator
   include MyEnumerable   # => MyEnumerator
   def initialize(array)
-    @array = array       # => [1, 2, 3]
+    @array = array       # => [1, 2]
   end
 
   def each(&block)
     @array.each(&block)
   end
-
+  
   def next
     @fiber ||= Fiber.new do
       each { |e| Fiber.yield(e) }
@@ -59,13 +59,24 @@ class MyEnumerator
    end
 end
 
-MyEnumerator.new([1,2,3]).map
+class MyArray
+   include MyEnumerable   # => MyArray
+   def initialize(array)
+     @array = array       # => [1, 2]
+   end
+
+   def each(&block)
+     @array.each(&block)
+   end
+end
+
+
+array = MyArray.new([1,2])  # => #<MyArray:0x007f82fa0308c0 @array=[1, 2]>
+array.map.count
+[1,2].map.count
 
 # ~> NoMethodError
-# ~> undefined method `call' for nil:NilClass
+# ~> undefined method `each' for #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
 # ~>
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:26:in `block in map'
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:42:in `each'
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:42:in `each'
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:26:in `map'
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:60:in `<main>'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:9:in `count'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:71:in `<main>'
