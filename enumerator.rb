@@ -29,23 +29,25 @@ module MyEnumerable
       each { |e| array << block.call(e) }
       array
     else
-      MyEnumerator.new(@array)
+      MyEnumerator.new(@collection)
     end
-  end
-
-  def to_h
-    puts "this should return a hash"
   end
 end
 
 class MyEnumerator
   include MyEnumerable
-  def initialize(array)
-    @array = array
+  def initialize(collection)
+    @collection = collection
   end
 
   def each(&block)
-    @array.each(&block)
+    #old method that worked
+    #@collection.each(&block)
+
+    #new attempt that doesn't work
+    @collection.length.times {
+      block.call(self.next)
+    }
   end
 
   def next
@@ -57,10 +59,10 @@ class MyEnumerator
    end
 end
 
-my_enum = MyEnumerator.new([1,2,3,4,5,6,7])
-my_enum.map.count
-real_enum = Enumerator.new([1,2,3,4,5,6,7])
-real_enum.map.count
+my_enum = MyEnumerator.new([1, 2])
+my_enum.next
+real_enum = Enumerator.new([1, "hi"])
+real_enum.next
 
 Enumerator.new([1,2]).next
 MyEnumerator.new([1,2]).next
