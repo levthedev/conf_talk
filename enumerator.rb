@@ -22,27 +22,45 @@ module MyEnumerable
   end
 
   def map(&block)
-    array = []
-    each { |e| array << block.call(e) }
-    array
+    if block
+      array = []                           # => []
+      each { |e| array << block.call(e) }  # ~> NoMethodError: undefined method `call' for nil:NilClass
+      array
+    else
+
+  end
+
+  def to_h
+    puts "this should return a hash"
   end
 end
 
 class MyEnumerator
-  include MyEnumerable
+  include MyEnumerable   # => MyEnumerator
+  def initialize(array)
+    @array = array       # => [1, 2, 3]
+  end
+
+  def each(&block)
+    @array.each(&block)
+  end
+
   def next
     @fiber ||= Fiber.new do
       each { |e| Fiber.yield(e) }
-
       raise StopIteration
     end
-
-    if @fiber.alive?
-      @fiber.resume
-    else
-      raise StopIteration
-    end
+    @fiber.alive? ? @fiber.resume : raise StopIteration
   end
 end
 
-FakeEnumerator.new         # => #<FakeEnumerator:0x007fdcb20f7698>
+MyEnumerator.new([1,2,3]).map
+
+# ~> NoMethodError
+# ~> undefined method `call' for nil:NilClass
+# ~>
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:26:in `block in map'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:42:in `each'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:42:in `each'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:26:in `map'
+# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:60:in `<main>'
