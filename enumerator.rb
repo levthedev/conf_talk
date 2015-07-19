@@ -4,10 +4,10 @@ module MyEnumerable
   end
 
   def count(&block)
-    block ||= Proc.new { true }              # => #<Proc:0x007f82fa02baa0@/Users/levkravinsky/Desktop/playground/enumerator.rb:7>
+    block ||= Proc.new { true }              # => #<Proc:0x007fc6b301f208@/Users/levkravinsky/Desktop/playground/enumerator.rb:7>
     count = 0                                # => 0
-    each {|e| count += 1 if block.call(e) }  # ~> NoMethodError: undefined method `each' for #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
-    count
+    each {|e| count += 1 if block.call(e) }  # => [1, 2, 3, 4, 5, 6, 7]
+    count                                    # => 7
   end
 
   def find(&block)
@@ -27,8 +27,8 @@ module MyEnumerable
       each { |e| array << block.call(e) }
       array
     else
-      MyEnumerator.new(@array)             # => #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
-    end                                    # => #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
+      MyEnumerator.new(@array)             # => #<MyEnumerator:0x007fc6b301fc08 @array=[1, 2, 3, 4, 5, 6, 7]>
+    end                                    # => #<MyEnumerator:0x007fc6b301fc08 @array=[1, 2, 3, 4, 5, 6, 7]>
   end
 
   def to_h
@@ -39,19 +39,21 @@ end
 class MyEnumerator
   include MyEnumerable   # => MyEnumerator
   def initialize(array)
-    @array = array       # => [1, 2]
+    @array = array       # => [1, 2, 3, 4, 5, 6, 7], [1, 2, 3, 4, 5, 6, 7], [1, 2]
   end
 
   def each(&block)
-    @array.each(&block)
+    @array.each(&block)  # => [1, 2, 3, 4, 5, 6, 7]
   end
-  
+
   def next
     @fiber ||= Fiber.new do
+      puts "I'm a fiber too"
       each { |e| Fiber.yield(e) }
       raise StopIteration
     end
     if @fiber.alive?
+       puts "I'm a fiber"
        @fiber.resume
      else
        raise StopIteration
@@ -59,24 +61,10 @@ class MyEnumerator
    end
 end
 
-class MyArray
-   include MyEnumerable   # => MyArray
-   def initialize(array)
-     @array = array       # => [1, 2]
-   end
+my_enum = MyEnumerator.new([1,2,3,4,5,6,7])  # => #<MyEnumerator:0x007fc6b310c6c0 @array=[1, 2, 3, 4, 5, 6, 7]>
+my_enum.map.count                            # => 7
+real_enum = Enumerator.new([1,2,3,4,5,6,7])  # => #<Enumerator: [1, 2, 3, 4, 5, 6, 7]:each>
+real_enum.map.count                          # => 7
 
-   def each(&block)
-     @array.each(&block)
-   end
-end
-
-
-array = MyArray.new([1,2])  # => #<MyArray:0x007f82fa0308c0 @array=[1, 2]>
-array.map.count
-[1,2].map.count
-
-# ~> NoMethodError
-# ~> undefined method `each' for #<MyEnumerator:0x007f82fa030320 @array=[1, 2]>
-# ~>
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:9:in `count'
-# ~> /Users/levkravinsky/Desktop/playground/enumerator.rb:71:in `<main>'
+Enumerator.new([1,2])    # => #<Enumerator: [1, 2]:each>
+MyEnumerator.new([1,2])  # => #<MyEnumerator:0x007fc6b301db10 @array=[1, 2]>
