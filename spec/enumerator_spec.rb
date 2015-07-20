@@ -37,7 +37,7 @@ RSpec.describe 'MyEnumerable' do
     expect_enum(['a', 'b'], :map, ['A', 'B']) { |char| char.upcase }
   end
 
-  specify 'map with no block returns a MyEnumerator object which can be chained' do
+  specify 'map with no block returns a MyEnumerator object which can be chained with more enums' do
     my_enum = MyEnumerator.new(['a', 'b']).map
     expect(my_enum.class).to eq(MyEnumerator)
     expect(my_enum.with_index { |e, i| "#{e}#{i}"}).to eq(["a0", "b1"])
