@@ -63,16 +63,3 @@ class MyEnumerator
      end
    end
 end
-
-
-# my_enum = MyEnumerator.new [1, "hi"]
-# my_enum.map
-# my_enum.map.with_index { |e, i| "#{e} is index #{i}"}
-# my_enum.next
-# my_enum.next
-#
-# real_enum = Enumerator.new [1, "hi"]
-# real_enum.map
-# real_enum.map.with_index { |e, i| "#{e} is index #{i}"}
-# real_enum.next
-# real_enum.next
