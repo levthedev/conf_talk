@@ -1,10 +1,6 @@
 require 'fiber'
 
 module MyEnumerable
-  def to_a
-    each { |e| [] << e }
-  end
-
   def count(&block)
     block ||= Proc.new { true }
     count = 0
@@ -12,15 +8,14 @@ module MyEnumerable
     count
   end
 
-  def find(&block)
-    each { |e| return e if block.call(e) }
-    nil
-  end
-
   def find_all(&block)
-    array = []
-    each { |e| array << e if block.call(e) }
-    array
+    if block
+      array = []
+      each { |e| array << e if block.call(e) }
+      array
+    else
+      MyEnumerator.new(@collection)
+    end
   end
 
   def map(&block)
@@ -30,6 +25,14 @@ module MyEnumerable
       array
     else
       MyEnumerator.new(@collection)
+    end
+  end
+
+  def with_index(&block)
+    index = -1
+    map do |*elements|
+      index += 1
+      block.call *elements, index
     end
   end
 end
@@ -62,13 +65,12 @@ end
 
 my_enum = MyEnumerator.new [1, "hi"]
 my_enum.map
+my_enum.map.with_index { |e, i| "#{e} is index #{i}"}
 my_enum.next
 my_enum.next
 
 real_enum = Enumerator.new [1, "hi"]
-real_enum.map.count
+real_enum.map
+real_enum.map.with_index { |e, i| "#{e} is index #{i}"}
 real_enum.next
 real_enum.next
-
-Enumerator.new([1,2]).next
-MyEnumerator.new([1,2]).next
