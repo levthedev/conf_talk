@@ -40,6 +40,7 @@ end
 class MyEnumerator
   include MyEnumerable
   attr_reader :collection
+
   def initialize(collection)
     @collection = collection
   end
@@ -62,6 +63,7 @@ class MyEnumerator
     @fiber.alive? ? @fiber.resume : raise(StopIteration)
    end
 end
+
 
 my_enum = MyEnumerator.new [1, "hi"]
 my_enum.map
