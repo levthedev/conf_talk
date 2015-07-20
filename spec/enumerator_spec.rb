@@ -1,45 +1,4 @@
-module MyEnumerable
-  def to_a
-    each {|e| [] << e}
-  end
-
-  def count(&block)
-    block ||= Proc.new { true }
-    count = 0
-    each {|e| count += 1 if block.call(e) }
-    count
-  end
-
-  def find(&block)
-    each { |e| return e if block.call(e) }
-    nil
-  end
-
-  def find_all(&block)
-    array = []
-    each { |e| array << e if block.call(e) }
-    array
-  end
-
-  def map(&block)
-    array = []
-    each { |e| array << block.call(e) }
-    array
-  end
-end
-
 RSpec.describe 'MyEnumerable' do
-  class MyArray
-    include MyEnumerable
-    def initialize(array)
-      @array = array
-    end
-
-    def each(&block)
-      @array.each(&block)
-    end
-  end
-
   def assert_enum(array, method_name, *args, expected, &block)
     actual = MyArray.new(array).__send__(method_name, *args, &block)
     expect(actual).to eq expected
