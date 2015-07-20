@@ -27,14 +27,6 @@ module MyEnumerable
       MyEnumerator.new(@collection)
     end
   end
-
-  def with_index(&block)
-    index = -1
-    map do |*elements|
-      index += 1
-      block.call *elements, index
-    end
-  end
 end
 
 class MyEnumerator
@@ -61,6 +53,14 @@ class MyEnumerator
       raise StopIteration
     end
     @fiber.alive? ? @fiber.resume : raise(StopIteration)
+   end
+
+   def with_index(&block)
+     index = -1
+     map do |*elements|
+       index += 1
+       block.call *elements, index
+     end
    end
 end
 
