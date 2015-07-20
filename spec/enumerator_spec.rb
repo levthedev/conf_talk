@@ -1,12 +1,9 @@
+require_relative '../lib/enumerator.rb'
+
 RSpec.describe 'MyEnumerable' do
   def assert_enum(array, method_name, *args, expected, &block)
-    actual = MyArray.new(array).__send__(method_name, *args, &block)
+    actual = MyEnumerator.new(array).__send__(method_name, *args, &block)
     expect(actual).to eq expected
-  end
-
-
-  specify 'to_a returns an array of the items iterated over' do
-    assert_enum [1,2,2], :to_a, [1,2,2]
   end
 
   describe 'count' do
@@ -21,13 +18,6 @@ RSpec.describe 'MyEnumerable' do
       assert_enum ['a'],      :count, 1
       assert_enum ['a', 'a'], :count, 2
     end
-  end
-
-  specify 'find returns the first item where the block returns true' do
-    assert_enum([],                       :find,   nil) { true }
-    assert_enum([1, 2],                   :find,     1) { true }
-    assert_enum(['a', 'bcd', 'a', 'xyz'], :find, 'bcd') { |str| str.length == 3 }
-    assert_enum([1, 2],                   :find,   nil) { false }
   end
 
   specify 'find_all returns all the items where the block returns true' do
