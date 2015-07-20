@@ -2,13 +2,13 @@ require 'fiber'
 
 module MyEnumerable
   def to_a
-    each {|e| [] << e}
+    each { |e| [] << e }
   end
 
   def count(&block)
     block ||= Proc.new { true }
     count = 0
-    each {|e| count += 1 if block.call(e) }
+    each { |e| count += 1 if block.call(e) }
     count
   end
 
@@ -36,32 +36,38 @@ end
 
 class MyEnumerator
   include MyEnumerable
+  attr_reader :collection
   def initialize(collection)
     @collection = collection
   end
 
   def each(&block)
-    #old method that worked
-    #@collection.each(&block)
-
-    #new attempt that doesn't work
     @collection.length.times {
       block.call(self.next)
     }
   end
 
   def next
+    index = 0
     @fiber ||= Fiber.new do
-      each { |e| Fiber.yield(e) }
+      self.collection.length.times do |e|
+        Fiber.yield(collection[index])
+        index += 1
+      end
       raise StopIteration
     end
     @fiber.alive? ? @fiber.resume : raise(StopIteration)
    end
 end
 
-my_enum = MyEnumerator.new([1, 2])
+my_enum = MyEnumerator.new [1, "hi"]
+my_enum.map
 my_enum.next
-real_enum = Enumerator.new([1, "hi"])
+my_enum.next
+
+real_enum = Enumerator.new [1, "hi"]
+real_enum.map.count
+real_enum.next
 real_enum.next
 
 Enumerator.new([1,2]).next
