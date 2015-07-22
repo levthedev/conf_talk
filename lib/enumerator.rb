@@ -41,6 +41,7 @@ class MyEnumerator
     @collection.length.times {
       block.call(self.next)
     }
+    @collection
   end
 
   def next
