@@ -49,11 +49,11 @@ RSpec.describe 'MyEnumerable' do
     expect(my_enum.next).to eq('b')
   end
 
-  specify 'each iterates over each element' do
+  specify 'each iterates over each element and returns original collection' do
     arr = []
     second_enum = MyEnumerator.new([1, 2, 3])
     each_result = second_enum.each { |e| arr << e ** 2 }
-    
+
     expect(each_result).to eq([1, 2, 3])
     expect(arr).to eq([1, 4, 9])
   end
