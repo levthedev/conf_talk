@@ -64,3 +64,30 @@ class MyEnumerator
      end
    end
 end
+
+class OtherEnum
+  include MyEnumerable
+  attr_reader :collection
+
+  def initialize(collection)
+    @collection = collection
+  end
+
+  def each(&block)
+    i = 0
+    @collection.length.times {
+      block.call(self.collection[i])
+      i += 1
+    }
+    @collection
+  end
+
+   def with_index(&block)
+     index = -1
+     map do |*elements|
+       index += 1
+       block.call *elements, index
+     end
+   end
+end
+
