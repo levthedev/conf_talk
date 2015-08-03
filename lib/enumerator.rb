@@ -1,4 +1,5 @@
 require 'fiber'
+require 'benchmark'
 
 module MyEnumerable
   def count(&block)
@@ -51,9 +52,8 @@ class MyEnumerator
         Fiber.yield(collection[index])
         index += 1
       end
-      raise StopIteration
     end
-    @fiber.alive? ? @fiber.resume : raise(StopIteration)
+    @fiber.resume if @fiber.alive?
    end
 
    def with_index(&block)
