@@ -1,5 +1,4 @@
 require 'fiber'
-require 'benchmark'
 
 module MyEnumerable
   def count(&block)
